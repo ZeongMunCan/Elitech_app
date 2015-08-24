@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="button_login">登 录</string>
+    <string name="editText_email">邮箱</string>
+    <string name="editText_passwd">密码</string>
+    <string name="text_changeLanguage">切换语言</string>
+    <string name="text_forgetPasswd">忘记密码 ？</string>
+    <string name="text_newSignUp">新用户 ？注册</string>
+    <string name="action_settings">设置</string>
+    <string name="ok">确定</string>
+    <string name="text_bonded">我的设备：</string>
+    <string name="text_myDeviceInfo">我的冷媒体：</string>
+    <string name="text_newDevices">新设备：</string>
+    <string name="text_noMatchInfo">没有型号，手动添加</string>
+    <string name="button_chooseInfo">选择</string>
+    <string name="button_findDevice">查找冷媒秤</string>
+    <string name="text_chooseMyDevice">选择你的冷媒体型号</string>
+    <string name="button_startWeigh">开始称量</string>
+    <string name="text_deviceSettings">冷媒体型号 &amp; 蓝牙</string>
+    <string name="button_clear">清零</string>
+    <string name="button_powerOff">关机</string>
+    <string name="text_inputYourInfo">输入你的冷媒体型号</string>
+    <string name="text_newDeviceInfo">新设备型号</string>
+    <string name="text_changeUnit">切换单位</string>
+    <string name="text_press">压力</string>
+    <string name="text_weight">重量</string>
+    <string name="button_addIn">加注</string>
+    <string name="button_full">满载</string>
+    <string name="button_recycle">回收</string>
+    <string name="button_repeat">重复</string>
+    <string name="button_stop">停止</string>
+    <string name="text_inputAddIn">输入加注量</string>
+    <string name="text_inputRecycle">输入回收量</string>
+    <string name="text_repeat">确定重复上次动作？</string>
+    <string name="ai_addIn">加注量</string>
+    <string name="ai_bluetooth">冷媒秤 &amp; 蓝牙</string>
+    <string name="ai_model">冷媒体型号</string>
+    <string name="ai_others">其他</string>
+    <string name="ai_repeat">重复</string>
+    <string name="ai_ringAndVibration">响铃和振动</string>
+    <string name="text_removeBonded">解除绑定</string>
+    <string name="text_sureToRemove">确定要解除绑定：</string>
+    <string name="no">取消</string>
+    <string name="yes">确定</string>
+</resources>

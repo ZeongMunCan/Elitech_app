@@ -1,0 +1,90 @@
+<resources>
+    <string name="app_name" translatable="false">Bluetooth.rsy</string>
+
+    <string name="hello_world" translatable="false">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="logo" translatable="false">logo</string>
+    <string name="title_activity_bluetooth" translatable="false">BluetoothActivity</string>
+
+    <string name="button_login">Log In</string>
+    <string name="editText_email">E-mail address</string>
+    <string name="editText_passwd">password</string>
+    <string name="ok">OK</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+
+    <string name="button_chooseInfo">Choose</string>
+    <string name="text_myDeviceInfo">My device :</string>
+    <string name="text_noMatchInfo">No match device, Add manually</string>
+
+    <string name="text_bonded">Bonded :</string>
+    <string name="text_newDevices">New devices :</string>
+    <string name="text_chooseMyDevice">Choose your device</string>
+    <string name="text_deviceSettings">Device settings</string>
+    <string name="text_LMC_210" translatable="false">LMC-210</string>
+    <string name="text_LMC_310" translatable="false">LMC-310</string>
+    <string name="text_changeLanguage">Change Language</string>
+    <string name="text_forgetPasswd">Forget password ?</string>
+    <string name="text_newSignUp">New here ? Register</string>
+    <string name="text_newDeviceInfo">New Device Info</string>
+    <string name="text_inputYourInfo">input your device info</string>
+    <string name="text_inputAddIn">input how much you want to add</string>
+    <string name="text_inputRecycle">input how much you want to recycle</string>
+    <string name="text_changeUnit">Change Unity</string>
+    <string name="text_weight">Weight</string>
+    <string name="text_press">Press</string>
+    <string name="text_repeat">Sure to repeat the last action ?</string>
+    <string name="text_removeBonded">Remove</string>
+    <string name="text_sureToRemove">Sure to remove </string>
+
+    <string name="button_findDevice">Find Devices</string>
+    <string name="button_startWeigh">Start</string>
+
+    <string name="button_clear">Clear</string>
+    <string name="button_powerOff">Power Off</string>
+    <string name="button_addIn">Add in</string>
+    <string name="button_recycle">Recycle</string>
+    <string name="button_repeat">Repeat</string>
+    <string name="button_full">Full</string>
+    <string name="button_stop">Stop</string>
+
+    <string-array name="array_languages">
+        <item>English (US)</item>
+        <item>简体中文 (中国)</item>
+    </string-array>
+
+    <string-array name="array_deviceInfo">
+        <item>device 1</item>
+        <item>device 2</item>
+    </string-array>
+
+    <string-array name="array_weightUnits">
+        <item>kg</item>
+        <item>oz</item>
+        <item>lb</item>
+    </string-array>
+
+    <string-array name="array_pressUnits">
+        <item>Mpa</item>
+        <item>Bar</item>
+    </string-array>
+
+    <string-array name="array_settingsItem">
+        <item>@string/ai_model</item>
+        <item>@string/ai_bluetooth</item>
+        <item>@string/ai_addIn</item>
+        <item>@string/ai_repeat</item>
+        <item>@string/ai_ringAndVibration</item>
+        <item>@string/ai_others</item>
+    </string-array>
+
+    <string name="title_activity_main" translatable="false">MainActivity</string>
+    <string name="title_activity_settings" translatable="false">SettingsActivity</string>
+    <string name="ai_addIn">addIn</string>
+    <string name="ai_bluetooth">device &amp; bluetooth</string>
+    <string name="ai_model">device model</string>
+    <string name="ai_others">others</string>
+    <string name="ai_repeat">repeat</string>
+    <string name="ai_ringAndVibration">ring &amp; vibration</string>
+
+</resources>
