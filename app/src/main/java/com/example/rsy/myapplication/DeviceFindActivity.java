@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGattCallback;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -149,9 +148,10 @@ public class DeviceFindActivity extends AppCompatActivity {
             bluetoothAdapter.enable();
         }
 
-        // normal bluetooth, all code here can only scan normal bluetooth.
-        // In order to search for BLE devices, we need method # bluetoothAdapter.startLeScan(mLeScanCallback) #;
-        // ====================================================================================== //
+        /*
+         * normal bluetooth, all code here can only scan normal bluetooth.
+         * In order to search for BLE devices, we need method bluetoothAdapter#startLeScan(mLeScanCallback)
+         */
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         intentFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
@@ -377,8 +377,7 @@ public class DeviceFindActivity extends AppCompatActivity {
         Set<BluetoothDevice> smbd = bluetoothAdapter.getBondedDevices();
         for (BluetoothDevice bluetoothDevice : smbd) {
             if (bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
-                MyBluetoothDevice myBluetoothDevice = new MyBluetoothDevice(bluetoothDevice);
-                myBluetoothDevice.setState(1);
+                MyBluetoothDevice myBluetoothDevice = new MyBluetoothDevice(bluetoothDevice).setState(1);
                 list.add(myBluetoothDevice);
             }
         }
