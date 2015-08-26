@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGattCallback;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -54,6 +55,9 @@ public class DeviceFindActivity extends AppCompatActivity {
     private BroadcastReceiver broadcastReceiver = null;
     private MyBluetoothSocket myBluetoothSocket = null;
 
+    // BLE
+    private BluetoothAdapter.LeScanCallback mLeScanCallback = null;
+
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -75,7 +79,8 @@ public class DeviceFindActivity extends AppCompatActivity {
         button_findDevices.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                searchForBluetooth();
+//                searchForBluetooth();
+                searchForBLE();
                 if (!swipeRefreshLayout.isRefreshing())
                     swipeRefreshLayout.setRefreshing(true);
             }
@@ -144,6 +149,9 @@ public class DeviceFindActivity extends AppCompatActivity {
             bluetoothAdapter.enable();
         }
 
+        // normal bluetooth, all code here can only scan normal bluetooth.
+        // In order to search for BLE devices, we need method # bluetoothAdapter.startLeScan(mLeScanCallback) #;
+        // ====================================================================================== //
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         intentFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
@@ -237,7 +245,8 @@ public class DeviceFindActivity extends AppCompatActivity {
                     case BluetoothDevice.ACTION_PAIRING_REQUEST:
                         // set default pin code : 1234
                         // TODO auto bond without showing pin dialog
-                        if (bd.setPin("1234".getBytes())) Log.i("bt", "setPin");
+                        if (bd.getName().startsWith("HC"))
+                            if (bd.setPin("1234".getBytes())) Log.i("bt", "setPin");
                         break;
                     default:
                         break;
@@ -262,6 +271,7 @@ public class DeviceFindActivity extends AppCompatActivity {
                 }
             }
         });
+
 
         listView_bluetoothDevices.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -308,6 +318,15 @@ public class DeviceFindActivity extends AppCompatActivity {
         myBluetoothBonded.addAll(getBonded());
         list_bd.addAll(notifyData(tag, myBluetoothBonded, myBluetoothUnBonded));
         bluetoothDeviceListAdapter.notifyDataSetChanged();
+
+        // BLE
+        // ====================================================================================== //
+        mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
+            @Override
+            public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+                Log.i(TAG, "BLE : " + device.getAddress() + device.getName());
+            }
+        };
     }
 
     @Override
@@ -331,6 +350,22 @@ public class DeviceFindActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     bluetoothAdapter.cancelDiscovery();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            }, 10000);
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    private void searchForBLE() {
+        if (!bluetoothAdapter.isEnabled())
+            Toast.makeText(getApplicationContext(), "Please make sure the bluetooth is on", Toast.LENGTH_SHORT).show();
+        else {
+            bluetoothAdapter.startLeScan(mLeScanCallback);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    bluetoothAdapter.stopLeScan(mLeScanCallback);
                     swipeRefreshLayout.setRefreshing(false);
                 }
             }, 10000);
