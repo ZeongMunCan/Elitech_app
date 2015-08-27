@@ -38,6 +38,11 @@
             android:enabled="true"
             android:exported="true" >
         </service>
+
+        <activity
+            android:name=".BLEFinderActivity"
+            android:label="@string/title_activity_lefinder" >
+        </activity>
     </application>
 
 </manifest>

@@ -86,5 +86,6 @@
     <string name="ai_others">others</string>
     <string name="ai_repeat">repeat</string>
     <string name="ai_ringAndVibration">ring &amp; vibration</string>
+    <string name="title_activity_lefinder" translatable="false">LEFinderActivity</string>
 
 </resources>

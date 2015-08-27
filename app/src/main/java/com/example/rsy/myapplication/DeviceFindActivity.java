@@ -45,17 +45,13 @@ public class DeviceFindActivity extends AppCompatActivity {
     private TextView textView_chooseInfo = null;
     private SwipeRefreshLayout swipeRefreshLayout = null;
     private ListView listView_bluetoothDevices = null;
-    private SimpleAdapter bluetoothDeviceListAdapter = null;
+    private MyAdapter bluetoothDeviceListAdapter = null;
     private List<Map<String, Object>> list_bd = new ArrayList<>();
     private final int bdState[] = {R.drawable.bg_blue_button, R.drawable.bg_gray_button, R.drawable.bg_green_button};
 
     // bluetooth
     private BluetoothAdapter bluetoothAdapter = null;
     private BroadcastReceiver broadcastReceiver = null;
-    private MyBluetoothSocket myBluetoothSocket = null;
-
-    // BLE
-    private BluetoothAdapter.LeScanCallback mLeScanCallback = null;
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
@@ -78,8 +74,7 @@ public class DeviceFindActivity extends AppCompatActivity {
         button_findDevices.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                searchForBluetooth();
-                searchForBLE();
+                searchForBluetooth();
                 if (!swipeRefreshLayout.isRefreshing())
                     swipeRefreshLayout.setRefreshing(true);
             }
@@ -318,15 +313,6 @@ public class DeviceFindActivity extends AppCompatActivity {
         myBluetoothBonded.addAll(getBonded());
         list_bd.addAll(notifyData(tag, myBluetoothBonded, myBluetoothUnBonded));
         bluetoothDeviceListAdapter.notifyDataSetChanged();
-
-        // BLE
-        // ====================================================================================== //
-        mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
-            @Override
-            public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-                Log.i(TAG, "BLE : " + device.getAddress() + device.getName());
-            }
-        };
     }
 
     @Override
@@ -350,22 +336,6 @@ public class DeviceFindActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     bluetoothAdapter.cancelDiscovery();
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            }, 10000);
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.KITKAT)
-    private void searchForBLE() {
-        if (!bluetoothAdapter.isEnabled())
-            Toast.makeText(getApplicationContext(), "Please make sure the bluetooth is on", Toast.LENGTH_SHORT).show();
-        else {
-            bluetoothAdapter.startLeScan(mLeScanCallback);
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    bluetoothAdapter.stopLeScan(mLeScanCallback);
                     swipeRefreshLayout.setRefreshing(false);
                 }
             }, 10000);
