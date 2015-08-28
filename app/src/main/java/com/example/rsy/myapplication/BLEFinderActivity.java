@@ -55,7 +55,6 @@ public class BLEFinderActivity extends AppCompatActivity {
     // BLE
     private BluetoothAdapter.LeScanCallback mLeScanCallback = null;
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -146,6 +145,29 @@ public class BLEFinderActivity extends AppCompatActivity {
         }
         bluetoothDeviceListAdapter.initList(getBonded());
 
+        listView_bluetoothDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final String name = list_bd.get(position).get("name").toString();
+                final String mac = list_bd.get(position).get("mac").toString();
+                new AlertDialog.Builder(BLEFinderActivity.this)
+                        .setTitle("Connect")
+                        .setMessage(name + "\n" + mac)
+                        .setNegativeButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent();
+                                intent.putExtra("name", name);
+                                intent.putExtra("address", mac);
+                                intent.setClass(BLEFinderActivity.this, BLECtrlActivity.class);
+                                startActivity(intent);
+                            }
+                        })
+                        .setPositiveButton(R.string.no, null)
+                        .create().show();
+            }
+        });
+
         // TODO remove bonded device from [My Device] and add new bonded device to it.
         /**
          * LeScanCallback: when Le device is found, call this
@@ -155,9 +177,9 @@ public class BLEFinderActivity extends AppCompatActivity {
 
             /**
              *
-             * @param device device found
-             * @param rssi   signal intensity
-             * @param scanRecord i have no sense about this param
+             * @param device     device found
+             * @param rssi       signal intensity
+             * @param scanRecord I have no sense about this param
              */
             @Override
             public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {

@@ -87,5 +87,6 @@
     <string name="ai_repeat">repeat</string>
     <string name="ai_ringAndVibration">ring &amp; vibration</string>
     <string name="title_activity_lefinder" translatable="false">LEFinderActivity</string>
+    <string name="title_activity_blectrl">BLECtrlActivity</string>
 
 </resources>

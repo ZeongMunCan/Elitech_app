@@ -43,6 +43,10 @@
             android:name=".BLEFinderActivity"
             android:label="@string/title_activity_lefinder" >
         </activity>
+        <activity
+            android:name=".BLECtrlActivity"
+            android:label="@string/title_activity_blectrl" >
+        </activity>
     </application>
 
 </manifest>
