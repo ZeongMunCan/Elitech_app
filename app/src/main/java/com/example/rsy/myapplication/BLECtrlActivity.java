@@ -96,6 +96,13 @@ public class BLECtrlActivity extends AppCompatActivity {
                     return;
                 }
                 String value = editText_write.getText().toString();
+                byte[] bytes = value.getBytes();
+                for (int i = 0; i < bytes.length; i++) {
+                    bytes[i] -= 0x30;
+                }
+                mCharacteristic.setValue(bytes);
+                Log.i(TAG, "value : " + bytes[0]);
+                mBLEService.writeCharacteristic(mCharacteristic);
                 // TODO write value
             }
         });

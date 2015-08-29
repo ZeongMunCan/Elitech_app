@@ -150,6 +150,12 @@ public class BLEService extends Service {
         mBluetoothGatt.readCharacteristic(characteristic);
     }
 
+    public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
+        if (mBluetoothGatt == null)
+            return;
+        mBluetoothGatt.writeCharacteristic(characteristic);
+    }
+
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic, boolean enable) {
         if (mBluetoothGatt == null || mBluetoothAdapter == null)
             return;
