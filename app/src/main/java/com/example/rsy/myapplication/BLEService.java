@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Intent;
@@ -28,11 +29,11 @@ public class BLEService extends Service {
     private BluetoothGatt mBluetoothGatt = null;
     private String mBLEAddress = null;
 
-    public final static String ACTION_GATT_CONNECTED           = "com.example.rsy.myapplication.ACTION_GATT_CONNECTED";
-    public final static String ACTION_GATT_DISCONNECTED        = "com.example.rsy.myapplication.ACTION_GATT_DISCONNECTED";
+    public final static String ACTION_GATT_CONNECTED = "com.example.rsy.myapplication.ACTION_GATT_CONNECTED";
+    public final static String ACTION_GATT_DISCONNECTED = "com.example.rsy.myapplication.ACTION_GATT_DISCONNECTED";
     public final static String ACTION_GATT_SERVICES_DISCOVERED = "com.example.rsy.myapplication.ACTION_GATT_SERVICES_DISCOVERED";
-    public final static String ACTION_DATA_AVAILABLE           = "com.example.rsy.myapplication.ACTION_DATA_AVAILABLE";
-    public final static String EXTRA_DATA                      = "com.example.rsy.myapplication.EXTRA_DAT";
+    public final static String ACTION_DATA_AVAILABLE = "com.example.rsy.myapplication.ACTION_DATA_AVAILABLE";
+    public final static String EXTRA_DATA = "com.example.rsy.myapplication.EXTRA_DAT";
 
 
     public BLEService() {
@@ -84,6 +85,15 @@ public class BLEService extends Service {
             else
                 Log.w(TAG, "onServicesDiscovered status: " + status);
         }
+
+        @Override
+        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                Intent intent = new Intent(ACTION_DATA_AVAILABLE);
+                intent.putExtra(EXTRA_DATA, characteristic.getValue());
+                sendBroadcast(intent);
+            }
+        }
     };
 
     public boolean initialize() {
@@ -132,5 +142,27 @@ public class BLEService extends Service {
 
     public List<BluetoothGattService> getSupportedGattServices() {
         return mBluetoothGatt == null ? null : mBluetoothGatt.getServices();
+    }
+
+    public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
+        if (mBluetoothGatt == null)
+            return;
+        mBluetoothGatt.readCharacteristic(characteristic);
+    }
+
+    public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic, boolean enable) {
+        if (mBluetoothGatt == null || mBluetoothAdapter == null)
+            return;
+        mBluetoothGatt.setCharacteristicNotification(characteristic, enable);
+    }
+
+    private StringBuilder toHex(byte[] bytes) {
+        if (bytes != null && bytes.length > 0) {
+            final StringBuilder stringBuilder = new StringBuilder(bytes.length);
+            for (byte byteChar : bytes)
+                stringBuilder.append(String.format("%02X ", byteChar));
+            return stringBuilder;
+        }
+        return null;
     }
 }

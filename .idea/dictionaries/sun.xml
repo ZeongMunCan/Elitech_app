@@ -4,6 +4,7 @@
       <w>passwd</w>
       <w>rssi</w>
       <w>smbd</w>
+      <w>uuids</w>
     </words>
   </dictionary>
 </component>

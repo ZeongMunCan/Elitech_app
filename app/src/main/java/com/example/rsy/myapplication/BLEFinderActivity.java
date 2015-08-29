@@ -76,8 +76,6 @@ public class BLEFinderActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 searchForBLE();
-                if (!swipeRefreshLayout.isRefreshing())
-                    swipeRefreshLayout.setRefreshing(true);
             }
         });
         button_chooseInfo = (Button) findViewById(R.id.button_leChooseInfo);
@@ -176,7 +174,6 @@ public class BLEFinderActivity extends AppCompatActivity {
             private MyBluetoothDevice mbd = null;
 
             /**
-             *
              * @param device     device found
              * @param rssi       signal intensity
              * @param scanRecord I have no sense about this param
@@ -194,8 +191,16 @@ public class BLEFinderActivity extends AppCompatActivity {
 
             }
         };
-    }
 
+        // auto search for BLE devices if BLE is available
+        // -- BUG DONE -- the swipeRefreshLayout does not show when it start, to fix this, I add a little delay.  --rsy
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                searchForBLE();
+            }
+        },200);
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -206,6 +211,7 @@ public class BLEFinderActivity extends AppCompatActivity {
         if (!bluetoothAdapter.isEnabled())
             Toast.makeText(getApplicationContext(), "Please make sure the bluetooth is on", Toast.LENGTH_SHORT).show();
         else {
+            // TODO isDiscovering method is not checked
             if (bluetoothAdapter.isDiscovering())
                 bluetoothAdapter.stopLeScan(mLeScanCallback);
             bluetoothAdapter.startLeScan(mLeScanCallback);
@@ -216,7 +222,9 @@ public class BLEFinderActivity extends AppCompatActivity {
                     bluetoothAdapter.stopLeScan(mLeScanCallback);
                     swipeRefreshLayout.setRefreshing(false);
                 }
-            }, 10000);
+            }, 5000);
+            if (!swipeRefreshLayout.isRefreshing())
+                swipeRefreshLayout.setRefreshing(true);
         }
     }
 
