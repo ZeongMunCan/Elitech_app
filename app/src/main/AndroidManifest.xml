@@ -47,6 +47,10 @@
             android:name=".BLECtrlActivity"
             android:label="@string/title_activity_blectrl" >
         </activity>
+        <activity
+            android:name=".gitTestActivity"
+            android:label="@string/title_activity_git_test" >
+        </activity>
     </application>
 
 </manifest>

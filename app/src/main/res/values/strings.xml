@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name" translatable="false">Bluetooth.rsy</string>
 
-    <string name="hello_world" translatable="false">Hello world!</string>
+    <string name="test_git" translatable="false">Git Test!</string>
     <string name="action_settings">Settings</string>
     <string name="logo" translatable="false">logo</string>
     <string name="title_activity_bluetooth" translatable="false">BluetoothActivity</string>
@@ -88,5 +88,6 @@
     <string name="ai_ringAndVibration">ring &amp; vibration</string>
     <string name="title_activity_lefinder" translatable="false">LEFinderActivity</string>
     <string name="title_activity_blectrl">BLECtrlActivity</string>
+    <string name="title_activity_git_test">gitTestActivity</string>
 
 </resources>
