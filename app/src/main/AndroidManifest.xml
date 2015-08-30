@@ -48,8 +48,8 @@
             android:label="@string/title_activity_blectrl" >
         </activity>
         <activity
-            android:name=".gitTestActivity"
-            android:label="@string/title_activity_git_test" >
+            android:name=".testGitActivity"
+            android:label="@string/title_activity_test_git" >
         </activity>
     </application>
 

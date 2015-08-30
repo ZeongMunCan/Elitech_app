@@ -89,5 +89,7 @@
     <string name="title_activity_lefinder" translatable="false">LEFinderActivity</string>
     <string name="title_activity_blectrl">BLECtrlActivity</string>
     <string name="title_activity_git_test">gitTestActivity</string>
+    <string name="title_activity_test_git">testGitActivity</string>
 
+    <string name="hello_world">Hello world!</string>
 </resources>
