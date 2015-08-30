@@ -28,13 +28,7 @@ public class BLEService extends Service {
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothGatt mBluetoothGatt = null;
     private String mBLEAddress = null;
-
-    public final static String ACTION_GATT_CONNECTED = "com.example.rsy.myapplication.ACTION_GATT_CONNECTED";
-    public final static String ACTION_GATT_DISCONNECTED = "com.example.rsy.myapplication.ACTION_GATT_DISCONNECTED";
-    public final static String ACTION_GATT_SERVICES_DISCOVERED = "com.example.rsy.myapplication.ACTION_GATT_SERVICES_DISCOVERED";
-    public final static String ACTION_DATA_AVAILABLE = "com.example.rsy.myapplication.ACTION_DATA_AVAILABLE";
-    public final static String EXTRA_DATA = "com.example.rsy.myapplication.EXTRA_DAT";
-
+    private OnBLEServiceModified mModified = null;
 
     public BLEService() {
     }
@@ -56,43 +50,39 @@ public class BLEService extends Service {
         }
     }
 
-    private void sendBroadcast(String action) {
-        sendBroadcast(new Intent(action));
-    }
-
     private BluetoothGattCallback mBluetoothGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             // TODO action for broadcasting
-            String action;
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                action = ACTION_GATT_CONNECTED;
-                sendBroadcast(action);
+                mModified.onConnectListener(gatt);
                 Log.i(TAG, "Gatt connected");
                 // attempt to discovery services after successful connection
                 Log.i(TAG, "attempting to start service discovery : " + mBluetoothGatt.discoverServices());
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                action = ACTION_GATT_DISCONNECTED;
-                sendBroadcast(action);
+                mModified.onDisconnectListener(gatt);
                 Log.i(TAG, "Gatt disconnected");
             }
         }
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            if (status == BluetoothGatt.GATT_SUCCESS)
-                sendBroadcast(ACTION_GATT_SERVICES_DISCOVERED);
-            else
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                mModified.onServicesDiscovered(gatt);
+            } else
                 Log.w(TAG, "onServicesDiscovered status: " + status);
         }
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Intent intent = new Intent(ACTION_DATA_AVAILABLE);
-                intent.putExtra(EXTRA_DATA, characteristic.getValue());
-                sendBroadcast(intent);
+                mModified.onCharacteristicRead(gatt, characteristic);
             }
+        }
+
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            super.onCharacteristicWrite(gatt, characteristic, status);
         }
     };
 
@@ -140,10 +130,6 @@ public class BLEService extends Service {
         mBluetoothGatt = null;
     }
 
-    public List<BluetoothGattService> getSupportedGattServices() {
-        return mBluetoothGatt == null ? null : mBluetoothGatt.getServices();
-    }
-
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (mBluetoothGatt == null)
             return;
@@ -162,7 +148,13 @@ public class BLEService extends Service {
         mBluetoothGatt.setCharacteristicNotification(characteristic, enable);
     }
 
-    private StringBuilder toHex(byte[] bytes) {
+    /**
+     * Turn bytes to readable HEX
+     *
+     * @param bytes raw array with byte
+     * @return output HEX, null when bytes has no element
+     */
+    public static StringBuilder toHex(byte[] bytes) {
         if (bytes != null && bytes.length > 0) {
             final StringBuilder stringBuilder = new StringBuilder(bytes.length);
             for (byte byteChar : bytes)
@@ -170,5 +162,24 @@ public class BLEService extends Service {
             return stringBuilder;
         }
         return null;
+    }
+
+    public void setOnBLEServiceModified(OnBLEServiceModified modified) {
+        mModified = modified;
+    }
+
+    public static abstract class OnBLEServiceModified {
+        public void onConnectListener(BluetoothGatt gatt) {
+        }
+
+        public void onDisconnectListener(BluetoothGatt gatt) {
+        }
+
+        public void onServicesDiscovered(BluetoothGatt gatt) {
+        }
+
+        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+        }
+
     }
 }

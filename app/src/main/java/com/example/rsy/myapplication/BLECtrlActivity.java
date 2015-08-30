@@ -1,6 +1,8 @@
 package com.example.rsy.myapplication;
 
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -40,7 +42,8 @@ public class BLECtrlActivity extends AppCompatActivity {
 
     private String mBLEName, mBLEAddress = null;
     private BLEService mBLEService = null;
-    private BroadcastReceiver mBroadcastReceiver = null;
+    private List<String> uuids = null;
+    private ArrayAdapter<String> adapter = null;
 
     private List<BluetoothGattService> mGattServices = null;
     private List<BluetoothGattCharacteristic> mCharacteristics = new ArrayList<>();
@@ -61,13 +64,17 @@ public class BLECtrlActivity extends AppCompatActivity {
         button_read = (Button) findViewById(R.id.button_read);
         button_write = (Button) findViewById(R.id.button_write);
 
-        final List<String> uuids = new ArrayList<>();
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, uuids);
+        uuids = new ArrayList<>();
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, uuids);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 mCharacteristic = mCharacteristics.get(position);
+                List<BluetoothGattDescriptor> list = mCharacteristic.getDescriptors();
+                for (BluetoothGattDescriptor descriptor : list) {
+                    Log.i(TAG, "descriptor : " + BLEService.toHex(descriptor.getValue()));
+                }
                 Toast.makeText(getApplicationContext(), mCharacteristic.getUuid().toString(), Toast.LENGTH_SHORT).show();
             }
 
@@ -103,53 +110,44 @@ public class BLECtrlActivity extends AppCompatActivity {
                 mCharacteristic.setValue(bytes);
                 Log.i(TAG, "value : " + bytes[0]);
                 mBLEService.writeCharacteristic(mCharacteristic);
-                // TODO write value
             }
         });
-
-        mBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                switch (action) {
-                    case BLEService.ACTION_GATT_CONNECTED:
-                        break;
-                    case BLEService.ACTION_GATT_DISCONNECTED:
-                        break;
-                    case BLEService.ACTION_GATT_SERVICES_DISCOVERED:
-                        // TODO show these services in list
-                        mGattServices = mBLEService.getSupportedGattServices();
-                        for (BluetoothGattService gattService : mGattServices) {
-                            Log.i(TAG, "GattService : " + gattService.getUuid().toString());
-                            for (BluetoothGattCharacteristic characteristic : gattService.getCharacteristics()) {
-                                Log.i(TAG, "Chara : " + characteristic.getUuid().toString());
-                                mCharacteristics.add(characteristic);
-                                uuids.add(characteristic.getUuid().toString());
-                            }
-                        }
-                        adapter.notifyDataSetChanged();
-                        break;
-                    case BLEService.ACTION_DATA_AVAILABLE:
-                        byte[] bytes = intent.getByteArrayExtra(BLEService.EXTRA_DATA);
-                        String value = new String(bytes);
-                        Log.i(TAG, "read : " + value);
-                        textView_read.setText(value);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BLEService.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(BLEService.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(BLEService.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(BLEService.ACTION_DATA_AVAILABLE);
-        registerReceiver(mBroadcastReceiver, intentFilter);
 
         Intent gattServiceIntent = new Intent(this, BLEService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
     }
+
+    private BLEService.OnBLEServiceModified mOnBLEServiceModified = new BLEService.OnBLEServiceModified() {
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt) {
+            mGattServices = gatt.getServices();
+            for (BluetoothGattService gattService : mGattServices) {
+                Log.i(TAG, "GattService : " + gattService.getUuid().toString());
+                for (BluetoothGattCharacteristic characteristic : gattService.getCharacteristics()) {
+                    Log.i(TAG, "Chara : " + characteristic.getUuid().toString());
+                    mCharacteristics.add(characteristic);
+                    uuids.add(characteristic.getUuid().toString());
+                }
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    adapter.notifyDataSetChanged();
+                }
+            });
+        }
+
+        @Override
+        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            final byte[] bytes = characteristic.getValue();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    textView_read.setText(new String(bytes) + "\n" + BLEService.toHex(bytes));
+                }
+            });
+        }
+    };
 
     /**
      * get service controller
@@ -158,6 +156,7 @@ public class BLECtrlActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mBLEService = ((BLEService.BLEBinder) service).getService();
+            mBLEService.setOnBLEServiceModified(mOnBLEServiceModified);
             if (!mBLEService.initialize()) {
                 Toast.makeText(getApplicationContext(), "unable to initialize BLE Service", Toast.LENGTH_SHORT).show();
                 finish();
@@ -180,7 +179,6 @@ public class BLECtrlActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mBroadcastReceiver);
         unbindService(mServiceConnection);
     }
 }
