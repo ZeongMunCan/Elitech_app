@@ -22,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
     private Button button_addIn, button_recycle, button_repeat, button_full, button_stop = null;
     private View layout_additional_pressDashboard, layout_additional_buttons = null;
     private ImageView imageView_settings = null;
+    //ZeongMunCan：返回按钮
+    private ImageView imageView_back = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,6 +153,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        //ZeongMuncan：返回按钮返回值登陆界面
+        imageView_back = (ImageView)findViewById((R.id.bar_main_back));
+        imageView_back.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this,DeviceFindActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 }
