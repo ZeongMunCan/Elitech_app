@@ -49,6 +49,8 @@ public class BLEFinderActivity extends AppCompatActivity {
     private MyAdapter bluetoothDeviceListAdapter = null;
     private List<Map<String, Object>> list_bd = new ArrayList<>();
     private final int bdState[] = {R.drawable.bg_blue_button, R.drawable.bg_gray_button, R.drawable.bg_green_button};
+    private StartLeScan mScan = null;
+    private StartLeScan.StopScanCallback mStopScanCallback = null;
 
     // bluetooth
     private BluetoothAdapter bluetoothAdapter = null;
@@ -176,7 +178,7 @@ public class BLEFinderActivity extends AppCompatActivity {
             /**
              * @param device     device found
              * @param rssi       signal intensity
-             * @param scanRecord I have no sense about this param
+             * @param scanRecord I have no idea about this param
              */
             @Override
             public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
@@ -191,16 +193,24 @@ public class BLEFinderActivity extends AppCompatActivity {
 
             }
         };
-
-        // auto search for BLE devices if BLE is available
-        // -- BUG DONE -- the swipeRefreshLayout does not show when it start, to fix this, I add a little delay.  --rsy
-        new Handler().postDelayed(new Runnable() {
+        mStopScanCallback = new StartLeScan.StopScanCallback() {
             @Override
-            public void run() {
-                searchForBLE();
+            public void stopScan() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (swipeRefreshLayout.isRefreshing()) {
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+                    }
+                });
+                mScan = null;
             }
-        },200);
+        };
+        // auto search for BLE devices if BLE is available
+        searchForBLE();
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -211,20 +221,113 @@ public class BLEFinderActivity extends AppCompatActivity {
         if (!bluetoothAdapter.isEnabled())
             Toast.makeText(getApplicationContext(), "Please make sure the bluetooth is on", Toast.LENGTH_SHORT).show();
         else {
-            // TODO isDiscovering method is not checked
-            if (bluetoothAdapter.isDiscovering())
-                bluetoothAdapter.stopLeScan(mLeScanCallback);
-            bluetoothAdapter.startLeScan(mLeScanCallback);
             bluetoothDeviceListAdapter.initList(getBonded());
+            // call this method again when it still scanning BLE  --rsy
+            if (mScan != null)
+                if (mScan.isScanning())
+                    mScan.interrupt();
+            mScan = new StartLeScan(bluetoothAdapter, mLeScanCallback, mStopScanCallback);
+            mScan.start();
+            // -- BUG DONE -- the swipeRefreshLayout does not show when it start or it stopped just now,
+            // to fix this, I add a little delay.  --rsy
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    bluetoothAdapter.stopLeScan(mLeScanCallback);
-                    swipeRefreshLayout.setRefreshing(false);
+                    if (!swipeRefreshLayout.isRefreshing())
+                        swipeRefreshLayout.setRefreshing(true);
                 }
-            }, 5000);
-            if (!swipeRefreshLayout.isRefreshing())
-                swipeRefreshLayout.setRefreshing(true);
+            }, 200);
+        }
+    }
+
+    private static class StartLeScan extends Thread {
+
+        private BluetoothAdapter bluetoothAdapter = null;
+        private BluetoothAdapter.LeScanCallback scanCallback = null;
+        private StopScanCallback stopScanCallback = null;
+        // the duration of scanning
+        private long scanTime = 5000;
+        private boolean stopScanning = false;
+        private boolean isInterrupted = false;
+
+        /**
+         * Constructor
+         *
+         * Start to scan the ble devices with user defined time
+         * @param bluetoothAdapter BLE adapter
+         * @param scanCallback     called when ble device found
+         * @param stopScanCallback called when the scanning finished (to update the UI)
+         * @param scanTime         user defined time for scanning (sometimes 5s is too short to get
+         *                         the device you wanted, you can define the time here)
+         */
+        public StartLeScan(BluetoothAdapter bluetoothAdapter, BluetoothAdapter.LeScanCallback scanCallback,
+                           StopScanCallback stopScanCallback, long scanTime) {
+            this.bluetoothAdapter = bluetoothAdapter;
+            this.scanCallback = scanCallback;
+            this.stopScanCallback = stopScanCallback;
+            this.scanTime = scanTime;
+            startScan();
+        }
+
+        /**
+         * Constructor
+         *
+         * Start to scan the ble devices
+         * @param bluetoothAdapter BLE adapter
+         * @param scanCallback     called when ble devices found
+         * @param stopScanCallback called when the scanning finished (to update the UI)
+         */
+        public StartLeScan(BluetoothAdapter bluetoothAdapter, BluetoothAdapter.LeScanCallback scanCallback,
+                           StopScanCallback stopScanCallback) {
+            this.bluetoothAdapter = bluetoothAdapter;
+            this.scanCallback = scanCallback;
+            this.stopScanCallback = stopScanCallback;
+            startScan();
+        }
+
+        public boolean isScanning() {
+            return !stopScanning;
+        }
+
+        private void startScan() {
+            bluetoothAdapter.startLeScan(scanCallback);
+        }
+
+        @Override
+        public void run() {
+            super.run();
+            while (!stopScanning && scanTime > 0) {
+                try {
+                    sleep(100);
+                    scanTime -= 100;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (!isInterrupted) {
+                interrupt();
+            }
+        }
+
+        @Override
+        public void interrupt() {
+            super.interrupt();
+            stopScanning = true;
+            isInterrupted = true;
+            bluetoothAdapter.stopLeScan(scanCallback);
+            stopScanCallback.stopScan();
+        }
+
+        public void setStopScanCallback(StopScanCallback stopScanCallback) {
+            this.stopScanCallback = stopScanCallback;
+        }
+
+        public interface StopScanCallback {
+            /**
+             * you can update the UI or send some message here.
+             * (don't forget to surround the your methods with runOnUiThread)
+             */
+            void stopScan();
         }
     }
 
@@ -410,6 +513,10 @@ public class BLEFinderActivity extends AppCompatActivity {
             }
         }
 
+        /**
+         * Show the bonded devices every time the list be updated.
+         * @param bonded devices the phone already bond
+         */
         public void initList(List<MyBluetoothDevice> bonded) {
             bluetoothDevicesList.clear();
             myBluetoothBonded.clear();
@@ -443,6 +550,10 @@ public class BLEFinderActivity extends AppCompatActivity {
             return list;
         }
 
+        /**
+         * Update the list shown on the listView, including bonded devices and unBonded devices
+         * @param tag tags
+         */
         private void notifyData(String tag[]) {
             List<Map<String, Object>> list = new ArrayList<>();
             // don not show this if there is no device bonded
@@ -461,6 +572,11 @@ public class BLEFinderActivity extends AppCompatActivity {
             notifyDataSetChanged();
         }
 
+        /**
+         * Add the details of ble device
+         * @param myBluetoothDevice the device we want to add in the list
+         * @return                  HashMap with details of ble device
+         */
         private Map<String, Object> addBD(MyBluetoothDevice myBluetoothDevice) {
             String name = myBluetoothDevice.getName();
             String mac = myBluetoothDevice.getAddress();
@@ -476,6 +592,11 @@ public class BLEFinderActivity extends AppCompatActivity {
             return map;
         }
 
+        /**
+         * Add tags to the list
+         * @param tag tag to shown
+         * @return    HashMap with tag
+         */
         private Map<String, Object> addBD(String tag) {
             Map<String, Object> map = new HashMap<>();
             map.put("tag", true);
