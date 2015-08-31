@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //ZeongMuncan：返回按钮返回值登陆界面
+        //ZeongMuncan：返回按钮返回至上一界面
         imageView_back = (ImageView)findViewById((R.id.bar_main_back));
         imageView_back.setOnClickListener(new View.OnClickListener(){
             @Override

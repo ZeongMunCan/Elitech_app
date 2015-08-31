@@ -42,6 +42,7 @@ public class SettingsActivity extends AppCompatActivity {
         SimpleAdapter simpleAdapter = new SimpleAdapter(this, data, R.layout.list_settings_item, new String[]{"item"}, new int[]{R.id.textView_settingsItem});
         listView_settings.setAdapter(simpleAdapter);
 
+        //ZeongMuncan：返回按钮返回至上一界面
         imageView_back = (ImageView) findViewById(R.id.bar_settings_back);
         imageView_back.setOnClickListener(new View.OnClickListener() {
             @Override
