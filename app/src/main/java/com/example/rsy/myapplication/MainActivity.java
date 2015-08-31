@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private Button button_addIn, button_recycle, button_repeat, button_full, button_stop = null;
     private View layout_additional_pressDashboard, layout_additional_buttons = null;
     private ImageView imageView_settings = null;
-    //ZeongMunCan£º·µ»Ø°´Å¥
+    //ZeongMunCanï¼šè¿”å›æŒ‰é’®
     private ImageView imageView_back = null;
 
     @Override
@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //ZeongMuncan£º·µ»Ø°´Å¥·µ»ØÖÁÉÏÒ»½çÃæ
+        //ZeongMuncanï¼šè¿”å›æŒ‰é’®è¿”å›è‡³ä¸Šä¸€ç•Œé¢
         imageView_back = (ImageView)findViewById((R.id.bar_main_back));
         imageView_back.setOnClickListener(new View.OnClickListener(){
             @Override

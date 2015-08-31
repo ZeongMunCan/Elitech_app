@@ -17,6 +17,7 @@ import java.util.Map;
 public class SettingsActivity extends AppCompatActivity {
 
     private ListView listView_settings = null;
+    //ZeongMunCanï¼šè¿”å›æŒ‰é’®
     private ImageView imageView_back = null;
 
     @Override
@@ -42,7 +43,7 @@ public class SettingsActivity extends AppCompatActivity {
         SimpleAdapter simpleAdapter = new SimpleAdapter(this, data, R.layout.list_settings_item, new String[]{"item"}, new int[]{R.id.textView_settingsItem});
         listView_settings.setAdapter(simpleAdapter);
 
-        //ZeongMuncan£º·µ»Ø°´Å¥·µ»ØÖÁÉÏÒ»½çÃæ
+        //ZeongMuncanï¼šè¿”å›æŒ‰é’®è¿”å›è‡³ä¸Šä¸€ç•Œé¢
         imageView_back = (ImageView) findViewById(R.id.bar_settings_back);
         imageView_back.setOnClickListener(new View.OnClickListener() {
             @Override
