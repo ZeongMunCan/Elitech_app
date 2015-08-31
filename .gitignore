@@ -5,3 +5,7 @@
 .DS_Store
 /build
 /captures
+.idea/dictionaries/rsy.xml
+.idea/encodings.xml
+app/app.iml
+Elitech_app.iml
